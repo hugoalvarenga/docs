@@ -1,0 +1,279 @@
+---
+title: "Pixel Global"
+description: "Implementação padrão do Pixel para qualquer plataforma"
+---
+
+## Instalação
+
+### Snippet JavaScript
+
+Copie e cole o seguinte código no seu site, logo antes do fechamento da tag `</head>` ou insira dentro do seu GTM:
+
+```html
+<script src="https://assets.lomadee.com/global/pixel.js" async></script>
+```
+
+E então inicializar o Pixel no contexto global do window:
+
+```typescript
+window.lomadeePixel = new LomadeeGlobalPixel();
+```
+
+## Funcionamento
+
+O Pixel Global é um script assíncrono que se encarrega de rastrear eventos de conversão em seu site. Ele é responsável por:
+
+- Rastrear visualizações de páginas;
+- Rastrear cliques em links e botões
+- Capturar os parâmetros de URL da Lomadee;
+
+## Envio de Pedidos
+
+Na sua tela de conversão, você pode configurar o envio de pedidos para a Lomadee. Para isso você vai usar o método `sendOrder`. Que poderá ser acessado através do contexto global do window usando a variável `lomadeePixel`.
+
+```javascript
+lomadeePixel.sendOrder({
+  orderId: "123456",
+  customer: {
+    id: "CUSTOMER_ID",
+    firstName: "João",
+    lastName: "Silva",
+    email: "joao@email.com",
+    document: "12345678900",
+    phone: "11999999999",
+    documentType: "CPF",
+    metadata: [],
+  },
+  items: [
+    {
+      id: "SKU123",
+      name: "Smartphone XYZ",
+      imageUrl: "https://exemplo.com/imagem.jpg",
+      price: 19999,
+      listPrice: 24999,
+      quantity: 1,
+      categories: [
+        {
+          id: "CATEGORY_ID",
+          name: "Eletrônicos",
+          metadata: [],
+        },
+      ],
+      metadata: [],
+    },
+  ],
+  subItems: [
+    {
+      key: "Items",
+      value: 1999.9,
+    },
+    {
+      key: "Shipping",
+      value: 15.9,
+    },
+    {
+      key: "Discounts",
+      value: 199.9,
+    },
+  ],
+  metadata: [],
+});
+```
+
+## Estrutura dos Dados
+
+### Pedido
+
+| Campo    | Tipo   | Obrigatório | Descrição                            |
+| -------- | ------ | ----------- | ------------------------------------ |
+| orderId  | string | Sim         | Identificador único do pedido        |
+| customer | object | Não         | Informações do cliente               |
+| items    | Array  | Sim         | Lista de produtos do pedido          |
+| subItems | Array  | Sim         | Valores adicionais (frete, desconto) |
+| metadata | Array  | Não         | Dados adicionais do pedido           |
+
+### Cliente
+
+| Campo        | Tipo   | Obrigatório | Descrição                   |
+| ------------ | ------ | ----------- | --------------------------- |
+| id           | string | Não         | ID do cliente               |
+| firstName    | string | Não         | Nome do cliente             |
+| lastName     | string | Não         | Sobrenome do cliente        |
+| email        | string | Não         | Email do cliente            |
+| document     | string | Não         | Documento do cliente        |
+| phone        | string | Não         | Telefone do cliente         |
+| documentType | string | Não         | Tipo do documento           |
+| metadata     | Array  | Não         | Dados adicionais do cliente |
+
+### Produto
+
+| Campo      | Tipo   | Obrigatório | Descrição                               |
+| ---------- | ------ | ----------- | --------------------------------------- |
+| id         | string | Sim         | ID/SKU do produto                       |
+| name       | string | Sim         | Nome do produto                         |
+| imageUrl   | string | Sim         | URL da imagem do produto                |
+| price      | number | Sim         | Preço final do produto em _centavos_    |
+| listPrice  | number | Sim         | Preço original do produto em _centavos_ |
+| quantity   | number | Sim         | Quantidade                              |
+| categories | Array  | Sim         | Categorias do produto                   |
+| metadata   | Array  | Sim         | Dados adicionais do produto             |
+
+### SubItems
+
+O objeto `subItems` é responsável por armazenar informações do pedido, como frete, items, descontos e outros valores que não estão diretamente relacionados aos produtos. É importante notar que:
+
+- O valor total dos `Items` deve refletir o preço final de cada produto após a aplicação de descontos
+- Descontos aplicados diretamente nos produtos devem ser refletidos no `price` de cada item
+- Descontos gerais do pedido (como cupons ou descontos na forma de pagamento) devem ser incluídos no `subItems` através da key `Discounts`
+- Qualquer outro tipo de desconto, como taxas, cashback, etc, devem ser incluídos no `subItems` através de uma key com o nome do desconto e o valor.
+
+Exemplo de uso:
+
+```javascript
+lomadeePixel.sendOrder({
+  // ... outros campos ...
+  items: [
+    {
+      id: "SKU123",
+      name: "Smartphone XYZ",
+      price: 18999, // Preço final após desconto de R$100
+      listPrice: 19999, // Preço original
+      quantity: 1,
+      // ... outros campos do item
+    },
+  ],
+  subItems: [
+    {
+      key: "Items",
+      value: 18999, // Soma total dos items (preços finais)
+    },
+    {
+      key: "Shipping",
+      value: 1590, // Frete em centavos
+    },
+    {
+      key: "Discount",
+      value: 1000, // Desconto geral do pedido em centavos
+    },
+  ],
+});
+```
+
+#### Importante sobre Descontos
+
+2. **Descontos Gerais**: Descontos aplicados no final do checkout (como cupons ou descontos na forma de pagamento) devem ser incluídos no `subItems` com a chave "Discount". Esse desconto deve ser aplicado tambémno valor final do produto, por exemplo, se um desconto de 5% é aplicado por usar uma forma de pagamento específico, ele deve ser aplicado no valor final de cada produto do pedido.
+
+3. **Comissionamento**: O algoritmo de comissionamento da Lomadee considera o valor final de cada produto (`price`), não o valor total do pedido após descontos gerais para o calculo da comissão. Portanto, é crucial que os descontos específicos de produtos sejam refletidos corretamente no `price` de cada item. Por exemplo, se um desconto de 5% é aplicado por usar uma forma de pagamento específico, ele deve ser aplicado no `price` de cada item.
+
+### Metadata
+
+O campo `metadata` é um array que permite enviar informações customizadas para serem usadas em contextos específicos. Ele pode ser utilizado em diferentes níveis da estrutura do pedido:
+
+1. **No nível do pedido** (`order.metadata`)
+2. **No nível do cliente** (`customer.metadata`)
+3. **No nível do produto** (`items[].metadata`)
+4. **No nível da categoria** (`items[].categories[].metadata`)
+
+Cada item do array `metadata` deve seguir a estrutura de `key` e `value`:
+
+```javascript
+metadata: [
+  {
+    key: "NOME_DO_CAMPO",
+    value: "VALOR_DO_CAMPO",
+  },
+];
+```
+
+#### Exemplos de Uso
+
+1. **No pedido**:
+
+```javascript
+{
+  orderId: "123456",
+  metadata: [
+    {
+      key: "CanalVenda",
+      value: "Loja Física"
+    },
+    {
+      key: "TipoEntrega",
+      value: "Retirada"
+    }
+  ]
+}
+```
+
+2. **No cliente**:
+
+```javascript
+{
+  customer: {
+    id: "CUSTOMER_ID",
+    metadata: [
+      {
+        key: "PlanoFidelidade",
+        value: "Premium"
+      },
+      {
+        key: "Aniversario",
+        value: "15/05"
+      }
+    ]
+  }
+}
+```
+
+3. **No produto**:
+
+```javascript
+{
+  items: [
+    {
+      id: "SKU123",
+      metadata: [
+        {
+          key: "Garantia",
+          value: "12 meses",
+        },
+        {
+          key: "Fabricante",
+          value: "XYZ",
+        },
+      ],
+    },
+  ];
+}
+```
+
+4. **Na categoria**:
+
+```javascript
+{
+  categories: [
+    {
+      id: "CATEGORY_ID",
+      metadata: [
+        {
+          key: "Departamento",
+          value: "Eletrônicos",
+        },
+      ],
+    },
+  ];
+}
+```
+
+#### Observações Importantes
+
+- As chaves (`key`) devem ser strings e são case-sensitive
+- Os valores (`value`) podem ser strings, números ou booleanos
+- O `metadata` é opcional em todos os níveis
+- Use este campo para enviar informações adicionais que possam ser úteis para análises ou integrações específicas
+
+## Suporte
+
+Em caso de dúvidas ou problemas:
+
+1. Entre em contato com nosso [suporte](https://suporte.lomadee.com)

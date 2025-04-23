@@ -1,0 +1,129 @@
+---
+title: "Pixel Tray"
+description: "Implementação do Pixel para lojas Tray"
+---
+
+## Instalação
+
+Para instalar o Pixel em sua loja Tray, siga estes passos:
+
+1. Acesse o Admin da sua loja Tray
+2. Vá para `Configurações > Apps`
+3. Procure por "Lomadee Pixel" na loja de apps
+4. Clique em "Instalar" e siga as instruções
+
+## Configuração
+
+Após a instalação, você precisará configurar:
+
+1. Seu `organizationId` fornecido pela Lomadee
+2. Opções de rastreamento específicas para sua loja
+
+<Tip>
+  O app Tray já inclui todas as configurações necessárias para rastreamento
+  automático de pedidos.
+</Tip>
+
+## Rastreamento Automático
+
+O Pixel Tray oferece rastreamento automático para:
+
+- Visualizações de produtos
+- Adições ao carrinho
+- Inícios de checkout
+- Pedidos concluídos
+- Cancelamentos
+
+## Personalização
+
+Você pode personalizar o comportamento do Pixel através do Admin Tray:
+
+- Ativar/desativar eventos específicos
+- Configurar parâmetros adicionais
+- Definir regras de atribuição
+
+## Exemplos de Uso
+
+### Rastreamento Manual de Pedido
+
+```javascript
+const pixel = new LomadeeTrayPixel({
+  organizationId: "SEU_ORGANIZATION_ID",
+});
+
+pixel.sendOrder({
+  orderId: "123456",
+  affiliateInfo: {
+    affiliateId: "AFFILIATE_ID",
+  },
+  customer: {
+    id: "CUSTOMER_ID",
+    firstName: "João",
+    lastName: "Silva",
+    email: "joao@email.com",
+    document: "12345678900",
+    phone: "11999999999",
+    documentType: "CPF",
+    metadata: [],
+  },
+  items: [
+    {
+      id: "SKU123",
+      name: "Smartphone XYZ",
+      imageUrl: "https://exemplo.com/imagem.jpg",
+      price: 1999.9,
+      listPrice: 2499.9,
+      quantity: 1,
+      categories: [
+        {
+          id: "CATEGORY_ID",
+          name: "Eletrônicos",
+          metadata: [],
+        },
+      ],
+      metadata: [],
+    },
+  ],
+  subItems: [
+    {
+      key: "shipping",
+      value: 15.9,
+    },
+    {
+      key: "discount",
+      value: 199.9,
+    },
+  ],
+  metadata: [],
+});
+```
+
+## Recursos Específicos
+
+### Integração com Checkout Tray
+
+O Pixel Tray se integra automaticamente com:
+
+- Checkout Tray
+- Carrinho de compras
+- Páginas de produto
+- Páginas de categoria
+
+### Eventos Personalizados
+
+Você pode disparar eventos personalizados:
+
+```javascript
+pixel.trackEvent("custom_event", {
+  eventData: {
+    // dados do evento
+  },
+});
+```
+
+## Suporte
+
+Em caso de dúvidas ou problemas:
+
+1. Consulte nossa [documentação completa](https://docs.lomadee.com)
+2. Entre em contato com nosso [suporte](https://suporte.lomadee.com)

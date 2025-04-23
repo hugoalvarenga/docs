@@ -1,0 +1,262 @@
+---
+title: "Pixel Lomadee"
+description: "Documentação completa do Pixel Lomadee"
+---
+
+## Introdução
+
+O Pixel Lomadee é uma ferramenta de rastreamento que permite monitorar conversões e interações dos usuários em seu site. Ele é essencial para:
+
+- Rastrear vendas e conversões
+- Atribuir comissões aos afiliados
+- Analisar o desempenho das campanhas
+- Coletar dados para otimização
+
+## Tipos de Implementação
+
+<CardGroup cols={2}>
+  <Card title="Pixel Global" icon="globe" href="/docs/pixel/global">
+    Implementação padrão para qualquer plataforma
+  </Card>
+  <Card title="Pixel VTEX" icon="store" href="/docs/pixel/vtex">
+    Implementação específica para lojas VTEX
+  </Card>
+  <Card title="Pixel Tray" icon="store" href="/docs/pixel/tray">
+    Implementação específica para lojas Tray
+  </Card>
+</CardGroup>
+
+## Primeiros Passos
+
+Para começar a usar o Pixel, você precisa:
+
+1. Obter seu `organizationId` na plataforma Lomadee
+2. Escolher o tipo de implementação adequado para sua plataforma
+3. Seguir as instruções de instalação específicas
+
+<Tip>
+  Recomendamos começar com o Pixel Global se sua plataforma não for VTEX ou
+  Tray.
+</Tip>
+
+## Estrutura dos Dados
+
+### Pedido
+
+| Campo         | Tipo   | Obrigatório | Descrição                            |
+| ------------- | ------ | ----------- | ------------------------------------ |
+| orderId       | string | Sim         | Identificador único do pedido        |
+| affiliateInfo | object | Sim         | Informações do afiliado              |
+| customer      | object | Sim         | Informações do cliente               |
+| items         | Array  | Sim         | Lista de produtos do pedido          |
+| subItems      | Array  | Sim         | Valores adicionais (frete, desconto) |
+| metadata      | Array  | Sim         | Dados adicionais do pedido           |
+
+### Cliente
+
+| Campo        | Tipo   | Obrigatório | Descrição                   |
+| ------------ | ------ | ----------- | --------------------------- |
+| id           | string | Sim         | ID do cliente               |
+| firstName    | string | Sim         | Nome do cliente             |
+| lastName     | string | Sim         | Sobrenome do cliente        |
+| email        | string | Sim         | Email do cliente            |
+| document     | string | Sim         | Documento do cliente        |
+| phone        | string | Sim         | Telefone do cliente         |
+| documentType | string | Sim         | Tipo do documento           |
+| metadata     | Array  | Sim         | Dados adicionais do cliente |
+
+### Produto
+
+| Campo      | Tipo   | Obrigatório | Descrição                   |
+| ---------- | ------ | ----------- | --------------------------- |
+| id         | string | Sim         | ID/SKU do produto           |
+| name       | string | Sim         | Nome do produto             |
+| imageUrl   | string | Sim         | URL da imagem do produto    |
+| price      | number | Sim         | Preço final do produto      |
+| listPrice  | number | Sim         | Preço original do produto   |
+| quantity   | number | Sim         | Quantidade                  |
+| categories | Array  | Sim         | Categorias do produto       |
+| metadata   | Array  | Sim         | Dados adicionais do produto |
+
+## Recursos Avançados
+
+### Timeline de Parâmetros de URL
+
+A timeline de parâmetros de URL é um recurso que captura todos os parâmetros de URL durante a navegação do usuário. Isso é especialmente útil para:
+
+- Entender a jornada completa do usuário
+- Identificar interações com diferentes redes de afiliados
+- Criar modelos de atribuição mais sofisticados
+- Detectar padrões suspeitos de sobreposição de parâmetros
+
+Para ativar a timeline:
+
+```javascript
+new LomadeeGlobalPixel({
+  organizationId: "SEU_ORGANIZATION_ID",
+  enableTimeline: true,
+});
+```
+
+### Modo Debug
+
+O modo debug é essencial durante o desenvolvimento e testes. Quando ativado, o Pixel:
+
+- Exibe logs detalhados no console do navegador
+- Não envia dados reais para o servidor
+- Mostra informações sobre os eventos capturados
+
+Para ativar o modo debug:
+
+```javascript
+new LomadeeGlobalPixel({
+  organizationId: "SEU_ORGANIZATION_ID",
+  debug: true,
+});
+```
+
+## Exemplos de Uso
+
+### Pedido Simples
+
+```javascript
+const pixel = new LomadeeGlobalPixel({
+  organizationId: "SEU_ORGANIZATION_ID",
+});
+
+pixel.sendOrder({
+  orderId: "123456",
+  affiliateInfo: {
+    affiliateId: "AFFILIATE_ID",
+  },
+  customer: {
+    id: "CUSTOMER_ID",
+    firstName: "João",
+    lastName: "Silva",
+    email: "joao@email.com",
+    document: "12345678900",
+    phone: "11999999999",
+    documentType: "CPF",
+    metadata: [],
+  },
+  items: [
+    {
+      id: "SKU123",
+      name: "Produto Teste",
+      imageUrl: "https://exemplo.com/imagem.jpg",
+      price: 99.9,
+      listPrice: 129.9,
+      quantity: 1,
+      categories: [
+        {
+          id: "CAT1",
+          name: "Categoria 1",
+          metadata: [],
+        },
+      ],
+      metadata: [],
+    },
+  ],
+  subItems: [],
+  metadata: [],
+});
+```
+
+### Pedido com Múltiplos Produtos
+
+```javascript
+const pixel = new LomadeeGlobalPixel({
+  organizationId: "SEU_ORGANIZATION_ID",
+});
+
+pixel.sendOrder({
+  orderId: "123456",
+  affiliateInfo: {
+    affiliateId: "AFFILIATE_ID",
+  },
+  customer: {
+    id: "CUSTOMER_ID",
+    firstName: "João",
+    lastName: "Silva",
+    email: "joao@email.com",
+    document: "12345678900",
+    phone: "11999999999",
+    documentType: "CPF",
+    metadata: [],
+  },
+  items: [
+    {
+      id: "SKU123",
+      name: "Produto 1",
+      imageUrl: "https://exemplo.com/imagem1.jpg",
+      price: 199.9,
+      listPrice: 249.9,
+      quantity: 1,
+      categories: [
+        {
+          id: "CAT1",
+          name: "Categoria 1",
+          metadata: [],
+        },
+      ],
+      metadata: [],
+    },
+    {
+      id: "SKU456",
+      name: "Produto 2",
+      imageUrl: "https://exemplo.com/imagem2.jpg",
+      price: 99.9,
+      listPrice: 149.9,
+      quantity: 2,
+      categories: [
+        {
+          id: "CAT2",
+          name: "Categoria 2",
+          metadata: [],
+        },
+      ],
+      metadata: [],
+    },
+  ],
+  subItems: [
+    {
+      key: "shipping",
+      value: 15.9,
+    },
+    {
+      key: "discount",
+      value: 50.0,
+    },
+  ],
+  metadata: [],
+});
+```
+
+## Perguntas Frequentes
+
+<AccordionGroup>
+  <Accordion title="Como obtenho meu organizationId?">
+    O organizationId é fornecido pela Lomadee após a aprovação da sua conta.
+    Você pode encontrá-lo no painel administrativo da Lomadee.
+  </Accordion>
+  <Accordion title="O Pixel funciona em qualquer plataforma?">
+    Sim, o Pixel Global funciona em qualquer plataforma. Para VTEX e Tray,
+    recomendamos usar as implementações específicas para melhor integração.
+  </Accordion>
+  <Accordion title="Como faço para testar o Pixel?">
+    Use o modo debug durante o desenvolvimento. Ele mostrará logs detalhados no
+    console do navegador sem enviar dados reais.
+  </Accordion>
+  <Accordion title="O que fazer se o Pixel não estiver funcionando?">
+    1. Verifique se o organizationId está correto 2. Ative o modo debug para
+    identificar possíveis erros 3. Consulte a documentação específica da sua
+    implementação 4. Entre em contato com o suporte se o problema persistir
+  </Accordion>
+</AccordionGroup>
+
+## Suporte
+
+Em caso de dúvidas ou problemas:
+
+1. Consulte nossa [documentação completa](https://docs.lomadee.com)
+2. Entre em contato com nosso [suporte](https://suporte.lomadee.com)

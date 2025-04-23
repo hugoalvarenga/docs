@@ -1,0 +1,48 @@
+---
+title: "Pixel VTEX"
+description: "Implementação do Pixel para lojas VTEX"
+---
+
+## Configuração
+
+Copie e cole o seguinte código no seu site, logo antes do fechamento da tag `</head>` ou insira dentro do seu GTM:
+
+```html
+<script src="https://assets.lomadee.com/vtex/pixel.js" async></script>
+```
+
+E então inicializar o Pixel no contexto global do window:
+
+```typescript
+window.lomadeePixel = new LomadeeVtexPixel();
+```
+
+<Tip>
+  O Pixel VTEX já inclui todas as configurações necessárias para rastreamento
+  automático de pedidos. Não é necessário configurar nada além de instalar o
+  pixel.
+</Tip>
+
+## Rastreamento Automático
+
+O Pixel VTEX oferece rastreamento automático para:
+
+- Visualizações de produtos
+- Adições ao carrinho
+- Inícios de checkout
+- Pedidos concluídos
+
+### Integração com Checkout VTEX
+
+O Pixel VTEX se integra automaticamente com:
+
+- Checkout VTEX
+- Carrinho de compras
+- Páginas de produto
+- Páginas de categoria
+
+## Suporte
+
+Em caso de dúvidas ou problemas:
+
+1. Entre em contato com nosso [suporte](https://suporte.lomadee.com)
